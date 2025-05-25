@@ -1,70 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Growth Calculator</title>
-  <style>
-    body {
-      font-family: Poppins, sans-serif;
-      padding: 20px;
-      background: #f0f8ff;
-    }
-    h2 {
-      color: #333;
-    }
-    input, button {
-      padding: 10px;
-      margin: 8px 0;
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      background-color: #28a745;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    #result {
-      margin-top: 15px;
-      font-weight: bold;
-      color: #444;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Trading Growth Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 20px;
+            padding: 10px;
+        }
+        h1 {
+            color: #333;
+        }
+        .channel-link {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .channel-link a {
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .channel-link a:hover {
+            text-decoration: underline;
+        }
+        table {
+            width: 100%;
+            max-width: 100%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 300px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 300px;
+        }
+        .final-balance {
+            font-size: 2em;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 20px;
+            word-wrap: break-word;
+        }
+        @media (max-width: 600px) {
+            table {
+                font-size: 12px;
+            }
+            th, td {
+                padding: 8px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            .final-balance {
+                font-size: 1.5em;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h2>Compound Growth Calculator</h2>
-  <label>Initial Amount (₹):</label>
-  <input type="number" id="initial" placeholder="Enter starting amount" />
+    <h1>Vishal Rana Binary Trading Growth Projection</h1>
+    <div class="channel-link">
+        Created by <a href="https://www.youtube.com/@TradeWithVishalRana" target="_blank">Trade With Vishal Rana</a>
+    </div>
+    <label>Starting Balance ($): </label>
+    <input type="number" id="startingBalance" value="100" min="1">
+    <label>Daily Growth %: </label>
+    <input type="number" id="growthPercent" value="1" min="0.1" step="0.1">
+    <label>Years: </label>
+    <input type="number" id="years" value="2" min="1">
+    <button onclick="calculateGrowth()">Calculate</button>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Starting Balance ($)</th>
+                <th>Daily Target ($)</th>
+                <th>Monthly Earnings ($)</th>
+                <th>End Balance ($)</th>
+            </tr>
+        </thead>
+        <tbody id="calculation"></tbody>
+    </table>
+    
+    <div id="finalBalance" class="final-balance"></div>
 
-  <label>Daily Growth Rate (%):</label>
-  <input type="number" id="rate" placeholder="e.g. 5" />
+    <script>
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-US').format(num);
+        }
 
-  <label>Days:</label>
-  <input type="number" id="days" placeholder="Enter number of days" />
+        function calculateGrowth() {
+            let deposit = parseFloat(document.getElementById("startingBalance").value);
+            let growthPercent = parseFloat(document.getElementById("growthPercent").value) / 100;
+            let years = parseInt(document.getElementById("years").value);
+            let totalMonths = years * 12;
+            let balance = deposit;
+            const tableBody = document.getElementById("calculation");
+            tableBody.innerHTML = "";
 
-  <button onclick="calculate()">Calculate Growth</button>
+            for (let month = 1; month <= totalMonths; month++) {
+                let dailyEarning = (balance * growthPercent).toFixed(2);
+                let monthlyEarning = (dailyEarning * 30).toFixed(2);
+                let endBalance = (parseFloat(balance) + parseFloat(monthlyEarning)).toFixed(2);
 
-  <div id="result"></div>
-
+                let row = `<tr>
+                            <td>${month}</td>
+                            <td>$${formatNumber(balance)}</td>
+                            <td>$${formatNumber(dailyEarning)}</td>
+                            <td>$${formatNumber(monthlyEarning)}</td>
+                            <td>$${formatNumber(endBalance)}</td>
+                          </tr>`;
+                
+                tableBody.innerHTML += row;
+                balance = endBalance;
+            }
+            
+            let finalBalanceUSD = formatNumber(parseFloat(balance).toFixed(2));
+            let finalBalanceINR = formatNumber((balance * 83).toFixed(2)); // Approximate conversion rate
+            
+            document.getElementById("finalBalance").innerHTML = `Final Balance: $${finalBalanceUSD} (₹${finalBalanceINR})`;
+        }
+    </script>
   <script>
-    function calculate() {
-      const initial = parseFloat(document.getElementById("initial").value);
-      const rate = parseFloat(document.getElementById("rate").value);
-      const days = parseInt(document.getElementById("days").value);
-
-      if (isNaN(initial) || isNaN(rate) || isNaN(days)) {
-        document.getElementById("result").innerText = "Please enter valid numbers.";
-        return;
-      }
-
-      let total = initial;
-      for (let i = 0; i < days; i++) {
-        total += total * (rate / 100);
-      }
-
-      document.getElementById("result").innerText = `Projected Amount after ${days} days: ₹${total.toFixed(2)}`;
+    function formatNumber(num) {
+        return new Intl.NumberFormat('en-US').format(num);
     }
-  </script>
+
+    function calculateGrowth() {
+        let deposit = parseFloat(document.getElementById("startingBalance").value);
+        let growthPercent = parseFloat(document.getElementById("growthPercent").value) / 100;
+        let years = parseInt(document.getElementById("years").value);
+        let totalMonths = years * 12;
+        let balance = deposit;
+        const tableBody = document.getElementById("calculation");
+        tableBody.innerHTML = "";
+
+        for (let month = 1; month <= totalMonths; month++) {
+            let dailyEarning = (balance * growthPercent).toFixed(2);
+            let monthlyEarning = (dailyEarning * 30).toFixed(2);
+            let endBalance = (parseFloat(balance) + parseFloat(monthlyEarning)).toFixed(2);
+
+            let row = `<tr>
+                        <td>${month}</td>
+                        <td>$${formatNumber(balance)}</td>
+                        <td>$${formatNumber(dailyEarning)}</td>
+                        <td>$${formatNumber(monthlyEarning)}</td>
+                        <td>$${formatNumber(endBalance)}</td>
+                      </tr>`;
+
+            tableBody.innerHTML += row;
+            balance = endBalance;
+        }
+        
+        let finalBalanceUSD = formatNumber(parseFloat(balance).toFixed(2));
+        let finalBalanceINR = formatNumber((balance * 83).toFixed(2)); // Approximate conversion rate
+        
+        document.getElementById("finalBalance").innerHTML = `Final Balance: $${finalBalanceUSD} (₹${finalBalanceINR})`;
+    }
+</script>
+
 </body>
 </html>
